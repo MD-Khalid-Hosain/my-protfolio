@@ -13,12 +13,18 @@ export function ContactForm() {
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const name = String(data.get("name") ?? "");
-    const email = String(data.get("email") ?? "");
-    const message = String(data.get("message") ?? "");
-    const subject = encodeURIComponent(`Portfolio inquiry from ${name}`);
-    const body = encodeURIComponent(`${message}\n\n— ${name} (${email})`);
-    window.location.href = `mailto:${profile.email}?subject=${subject}&body=${body}`;
+    const name = String(data.get("name") ?? "").trim();
+    const email = String(data.get("email") ?? "").trim();
+    const message = String(data.get("message") ?? "").trim();
+
+    if (!name || !email || !message) {
+      return;
+    }
+
+    const bodyText = ["Name:", name, "", "Email:", email, "", "Message:", message].join("\n");
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(profile.email)}&su=${encodeURIComponent("Connection from Portfolio")}&body=${encodeURIComponent(bodyText)}`;
+
+    window.open(gmailUrl, "_blank", "noopener,noreferrer");
     setStatus("opened");
   }
 
@@ -63,8 +69,8 @@ export function ContactForm() {
       </button>
       <p className="text-xs text-subtle" aria-live="polite">
         {status === "opened"
-          ? `Your email app should now be open with a message to ${profile.email}.`
-          : "Opens your email app with the message pre-filled."}
+          ? "Gmail compose should be open in a new tab with your message pre-filled."
+          : "Opens Gmail compose in a new tab with your message pre-filled."}
       </p>
     </form>
   );
